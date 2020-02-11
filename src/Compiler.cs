@@ -92,6 +92,13 @@ namespace FastStringFormat
                 {
                     string paramSegment = formatString.Substring(openBraceAt + 1, colonAt - openBraceAt - 1);
                     string formatSegment = formatString.Substring(colonAt + 1, closeBraceAt - colonAt - 1);
+
+                    if (paramSegment.Length == 0)
+                        throw new FormatStringSyntaxException($"Empty parameter at position {openBraceAt}.");
+
+                    if (formatSegment.Length == 0)
+                        throw new FormatStringSyntaxException($"Empty format at position {openBraceAt}.");
+
                     segments.Add(new FormattedParamSegment(paramSegment, formatSegment, formatProviderExpression));
                     
                     ptr = closeBraceAt + 1;
@@ -102,6 +109,10 @@ namespace FastStringFormat
                 if (closeBraceAt != -1)
                 {
                     string paramSegment = formatString.Substring(openBraceAt + 1, closeBraceAt - openBraceAt - 1);
+                    
+                    if (paramSegment.Length == 0)
+                        throw new FormatStringSyntaxException($"Empty parameter at position {openBraceAt}.");
+                    
                     segments.Add(new ParamSegment(paramSegment));
                     
                     ptr = closeBraceAt + 1;
@@ -109,7 +120,7 @@ namespace FastStringFormat
                 }
 
                 // No matching close brace *brrrpp*
-                throw new ArgumentException("Missing '}' to match '{' at position " + openBraceAt + ".");
+                throw new FormatStringSyntaxException($"Missing '}}' to match '{{' at position {openBraceAt}.");
             }
 
             return segments;
@@ -148,7 +159,7 @@ namespace FastStringFormat
             {
                 MethodInfo getMethod = typeof(T).GetProperty(param, BINDING_FLAGS)?.GetGetMethod();
                 if (getMethod == null)
-                    throw new ArgumentException($"Property '{param}' not found on type '{nameof(T)}'. Does it have a public get accessor?");
+                    throw new FormatStringSyntaxException($"Property '{param}' not found on type '{nameof(T)}'. Does it have a public get accessor?");
 
                 Expression getExpression = Expression.Call(parameter, getMethod);
 
@@ -182,10 +193,10 @@ namespace FastStringFormat
             {
                 MethodInfo getMethod = typeof(T).GetProperty(param, BINDING_FLAGS)?.GetGetMethod();
                 if (getMethod == null)
-                    throw new ArgumentException($"Property '{param}' not found on type '{nameof(T)}'. Does it have a public get accessor?");
+                    throw new FormatStringSyntaxException($"Property '{param}' not found on type '{nameof(T)}'. Does it have a public get accessor?");
 
                 if (!getMethod.ReturnType.GetInterfaces().Contains(typeof(IFormattable)))
-                    throw new ArgumentException($"Property '{param}' does not return a type implementing IFormattable hence a format string cannot be applied to it.");
+                    throw new FormatStringSyntaxException($"Property '{param}' does not return a type implementing IFormattable hence a format string cannot be applied to it.");
 
                 Expression getExpression = Expression.Call(parameter, getMethod);
                 Expression formatExpression = Expression.Constant(format);

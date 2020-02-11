@@ -42,5 +42,35 @@ namespace FastStringFormat.Test
             // THEN the result is as expected
             Assert.AreEqual(expected, result);
         }
+
+        [TestMethod]
+        public void TestArgumentExceptionIsThrownForNullFormatStrings()
+        {
+            // GIVEN a null format string
+            // WHEN compiled
+            // THEN an exception is thrown
+            Assert.ThrowsException<ArgumentNullException>(() => {
+                new Compiler().Compile<DataObject>(null);
+            }, "formatString");
+        }
+
+        [TestMethod]
+        [DataRow("Hello, {Name", "Missing '}' to match '{' at position 8.")]
+        [DataRow("Hello, {Name:something", "Missing '}' to match '{' at position 8.")]
+        [DataRow("{}", "Empty parameter at position {openBraceAt}.")]
+        [DataRow("{Name:}", "Empty format at position {openBraceAt}.")]
+        [DataRow("{:something}", "Empty parameter at position {openBraceAt}.")]
+        [DataRow("{NotFound}", "Property 'NotFound' not found on type 'DataObject'. Does it have a public get accessor?")]
+        [DataRow("{NotFound:something}", "Property 'NotFound' not found on type 'DataObject'. Does it have a public get accessor?")]
+        [DataRow("{LikesCats:something}", "Property 'LikesCats' does not return a type implementing IFormattable hence a format string cannot be applied to it.")]
+        public void TestExceptionsAreThrownForInvalidFormatStrings(string formatString, string message)
+        {
+            // GIVEN an invalid format string
+            // WHEN compiled
+            // THEN an exception is thrown
+            Assert.ThrowsException<FormatStringSyntaxException>(() => {
+                new Compiler().Compile<DataObject>(formatString);
+            }, message);
+        }
     }
 }
