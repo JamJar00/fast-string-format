@@ -9,19 +9,19 @@ using FastStringFormat.Parsing.Parsers;
 
 namespace FastStringFormat
 {
-    public partial class Compiler
+    public partial class FastStringFormatCompiler
     {
         private const BindingFlags BINDING_FLAGS = BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public;
 
         public IFormatStringParser Parser { get; }
         
-        public Compiler()
+        public FastStringFormatCompiler()
             : this (new DefaultFormatParser())
         {
             
         }
         
-        public Compiler(IFormatStringParser parser)
+        public FastStringFormatCompiler(IFormatStringParser parser)
         {
             Parser = parser;
         }

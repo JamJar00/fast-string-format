@@ -41,7 +41,7 @@ namespace FastStringFormat.Test
         {
             // GIVEN a valid format string
             // WHEN compiled
-            var formatter = new Compiler().Compile<DataObject>(formatString);
+            var formatter = new FastStringFormatCompiler().Compile<DataObject>(formatString);
 
             // THEN the formatter is not null
             Assert.IsNotNull(formatter);
@@ -63,7 +63,7 @@ namespace FastStringFormat.Test
             // WHEN compiled
             // THEN an exception is thrown
             Assert.ThrowsException<ArgumentNullException>(() => {
-                new Compiler().Compile<DataObject>(null);
+                new FastStringFormatCompiler().Compile<DataObject>(null);
             }, "formatString");
         }
 
@@ -82,7 +82,7 @@ namespace FastStringFormat.Test
             // WHEN compiled
             // THEN an exception is thrown
             Assert.ThrowsException<FormatStringSyntaxException>(() => {
-                new Compiler().Compile<DataObject>(formatString);
+                new FastStringFormatCompiler().Compile<DataObject>(formatString);
             }, message);
         }
     }
