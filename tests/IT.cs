@@ -9,11 +9,22 @@ namespace FastStringFormat.Test
     {
         class DataObject
         {
-            public string Forename { get; set; }
+            public string? Forename { get; set; }
             public string Surname { get; set; }
             public DateTime DOB { get; set; }
             
             public bool LikesCats { get; set; }
+
+            public string? NullString { get; set; }
+
+            public DataObject(string forename, string surname, DateTime dOB, bool likesCats)
+            {
+                Forename = forename;
+                Surname = surname;
+                DOB = dOB;
+                LikesCats = likesCats;
+                NullString = null;
+            }
         }
 
         [TestMethod]
@@ -24,6 +35,8 @@ namespace FastStringFormat.Test
         [DataRow("{DOB}", "22/09/1962 00:00:00")]
         [DataRow("{DOB:yyyy-MM-dd}", "1962-09-22")]
         [DataRow("{forename} {surname} was born {DOB}. It is {likesCats} that he liked cats.", "Steve Irwin was born 22/09/1962 00:00:00. It is True that he liked cats.")]
+        [DataRow("This is null: {nullString}", "This is null: ")]
+        [DataRow("{nullString}", null)]
         public void TestFormatString(string formatString, string expected)
         {
             // GIVEN a valid format string
@@ -34,7 +47,7 @@ namespace FastStringFormat.Test
             Assert.IsNotNull(formatter);
 
             // GIVEN an data object to format
-            var data = new DataObject { Forename = "Steve", Surname = "Irwin", DOB = new DateTime(1962, 9, 22), LikesCats = true };
+            var data = new DataObject("Steve", "Irwin", new DateTime(1962, 9, 22), true);
 
             // WHEN the formatter is invoked
             string result = formatter(data);

@@ -27,14 +27,14 @@ namespace FastStringFormat
         }
 
 
-        public Func<T, string> Compile<T>(string formatString)
+        public Func<T, string> Compile<T>(string? formatString)
         {
             return Compile<T>(formatString, CultureInfo.CurrentCulture);
         }
 
-        public Func<T, string> Compile<T>(string formatString, IFormatProvider formatProvider)
+        public Func<T, string> Compile<T>(string? formatString, IFormatProvider? formatProvider)
         {
-            // Guard
+            // Guard, since we currently target a version of .NET that doesn't understand nullable reference types
             if (formatString == null)
                 throw new ArgumentNullException(nameof(formatString));
             
