@@ -14,6 +14,19 @@ There are of course already string formatting options in C#. [`string.Format`](h
 ### The Implementation
 Fast String Format works by using [Expressions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/statements-expressions-operators/expressions) to compile the format string into a `Func<string, T>`. When that `Func` is run, the entire string operation happens using calls to the very fast `string.Concat` method.
 
+## Current Benchmarks
+Fast String Format is currently benchmarked against a number of different string formatting methods using [BenchmarkNet](https://github.com/dotnet/BenchmarkDotNet).
+```
+|              Method |       Mean |     Error |     StdDev |     Median |
+|-------------------- |-----------:|----------:|-----------:|-----------:|
+|              Concat |   963.6 ns |  96.16 ns |   246.5 ns |   900.0 ns |
+|            Addition | 1,002.5 ns | 172.08 ns |   450.3 ns |   900.0 ns |
+|       StringBuilder | 2,031.6 ns | 510.40 ns | 1,464.4 ns | 1,200.0 ns |
+|        StringFormat | 2,184.0 ns | 468.28 ns | 1,380.7 ns | 1,400.0 ns |
+| StringInterpolation | 1,550.5 ns | 381.32 ns | 1,081.7 ns | 1,000.0 ns |
+|    FastStringFormat | 1,823.7 ns | 471.92 ns | 1,369.1 ns | 1,100.0 ns |
+```
+
 ## Usage
 To use Fast String Format you will currently need to compile from source. Because this is a work in progress it is not available on Nuget yet.
 

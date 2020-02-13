@@ -9,19 +9,19 @@ namespace FastStringFormat.Test
     {
         class DataObject
         {
-            public string? Forename { get; set; }
+            public string Forename { get; set; }
             public string Surname { get; set; }
-            public DateTime DOB { get; set; }
+            public DateTime Dob { get; set; }
             
             public bool LikesCats { get; set; }
 
             public string? NullString { get; set; }
 
-            public DataObject(string forename, string surname, DateTime dOB, bool likesCats)
+            public DataObject(string forename, string surname, DateTime dob, bool likesCats)
             {
                 Forename = forename;
                 Surname = surname;
-                DOB = dOB;
+                Dob = dob;
                 LikesCats = likesCats;
                 NullString = null;
             }
