@@ -26,7 +26,6 @@ namespace FastStringFormat
             Parser = parser;
         }
 
-
         public Func<T, string> Compile<T>(string? formatString)
         {
             return Compile<T>(formatString, CultureInfo.CurrentCulture);
@@ -55,7 +54,7 @@ namespace FastStringFormat
             // TODO May be faster to nest concat operations up until a certain point before resorting to allocating an array object in the process. Perhaps a user preference?
             Expression formatExpression;
             if (segments.Count() == 1)
-                formatExpression = segmentExpressions.First();
+                formatExpression = CompileToSingleton<T>(segmentExpressions.First());
             else if (segments.Count() <= 4)
                 formatExpression = CompileToSingleConcat<T>(segmentExpressions);
             else
@@ -76,6 +75,12 @@ namespace FastStringFormat
             Parser.ParseFormatString(formatString, parsedStringBuilder);
 
             return parsedStringBuilder.Segments;
+        }
+
+        private Expression CompileToSingleton<T>(Expression expression)
+        {
+            // Most people don't want a null input to return null, they want an empty string instead
+            return Expression.Coalesce(expression, Expression.Constant(""));
         }
 
         private static Expression CompileToSingleConcat<T>(IEnumerable<Expression> segmentExpressions)

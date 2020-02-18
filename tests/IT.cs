@@ -36,7 +36,7 @@ namespace FastStringFormat.Test
         [DataRow("{DOB:yyyy-MM-dd}", "1962-09-22")]
         [DataRow("{forename} {surname} was born {DOB}. It is {likesCats} that he liked cats.", "Steve Irwin was born 22/09/1962 00:00:00. It is True that he liked cats.")]
         [DataRow("This is null: {nullString}", "This is null: ")]
-        [DataRow("{nullString}", null)]
+        [DataRow("{nullString}", "")]
         public void TestFormatString(string formatString, string expected)
         {
             // GIVEN a valid format string

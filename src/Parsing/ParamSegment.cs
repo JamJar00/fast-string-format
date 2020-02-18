@@ -15,7 +15,6 @@ namespace FastStringFormat.Parsing
 
         public Expression ToExpression<T>(ParameterExpression parameter, BindingFlags bindingFlags, Expression formatProviderExpression)
         {
-            // TODO ability to choose behaviour when resolved parameter is null
             MethodInfo getMethod = typeof(T).GetProperty(param, bindingFlags)?.GetGetMethod()
                 ?? throw new FormatStringSyntaxException($"Property '{param}' not found on type '{nameof(T)}'. Does it have a public get accessor?");;
 
