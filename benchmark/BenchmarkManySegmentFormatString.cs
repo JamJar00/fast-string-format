@@ -8,10 +8,10 @@ namespace FastStringFormat.Benchmark
 {
     public class BenchmarkManySegmentFormatString
     {
-        private static Random random = new Random();
-        
+        private static readonly Random random = new Random();
+
         private Func<DataObject, string>? fsfFormatter;
-        
+
         private StringBuilder? stringBuilder;
 
         private DataObject? dataObject;
@@ -26,7 +26,7 @@ namespace FastStringFormat.Benchmark
         public void IterationSetup()
         {
             dataObject = new DataObject(RandomString(10), RandomString(10));
-            
+
             stringBuilder = new StringBuilder();
         }
 
@@ -48,13 +48,13 @@ namespace FastStringFormat.Benchmark
         {
             return stringBuilder!.Append("Hello, ").Append(dataObject!.Forename).Append(" ").Append(dataObject!.Surname).Append(".").ToString();
         }
-        
+
         [Benchmark]
         public string StringFormat()
         {
             return string.Format("Hello, {0} {1}.", dataObject!.Forename, dataObject!.Surname);
         }
-        
+
         [Benchmark]
         public string StringInterpolation()
         {
@@ -70,11 +70,11 @@ namespace FastStringFormat.Benchmark
 
         private static string RandomString(int length)
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        class DataObject
+        private class DataObject
         {
             public string Forename { get; set; }
             public string Surname { get; set; }

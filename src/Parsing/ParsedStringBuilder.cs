@@ -11,23 +11,21 @@ namespace FastStringFormat.Parsing
 
     internal class ParsedStringBuilder : IParsedStringBuilder
     {
-        internal List<ISegment> Segments { get => segments; }
-
-        List<ISegment> segments = new List<ISegment>();
+        internal List<ISegment> Segments { get; } = new List<ISegment>();
 
         public void AddTextSegment(string text)
         {
-            segments.Add(new TextSegment(text));
+            Segments.Add(new TextSegment(text));
         }
 
         public void AddParamSegment(string param)
         {
-            segments.Add(new ParamSegment(param));
+            Segments.Add(new ParamSegment(param));
         }
 
         public void AddFormattedParamSegment(string param, string format)
         {
-            segments.Add(new FormattedParamSegment(param, format));
+            Segments.Add(new FormattedParamSegment(param, format));
         }
     }
 }

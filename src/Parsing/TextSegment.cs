@@ -5,7 +5,7 @@ namespace FastStringFormat.Parsing
 {
     internal class TextSegment : ISegment
     {
-        private string text;
+        private readonly string text;
 
         public TextSegment(string text)
         {

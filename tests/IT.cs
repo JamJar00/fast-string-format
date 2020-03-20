@@ -7,12 +7,12 @@ namespace FastStringFormat.Test
     [TestClass]
     public class IT
     {
-        class DataObject
+        private class DataObject
         {
             public string Forename { get; set; }
             public string Surname { get; set; }
             public DateTime Dob { get; set; }
-            
+
             public bool LikesCats { get; set; }
 
             public string? NullString { get; set; }

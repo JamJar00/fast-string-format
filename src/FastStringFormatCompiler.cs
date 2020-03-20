@@ -14,13 +14,13 @@ namespace FastStringFormat
         private const BindingFlags BINDING_FLAGS = BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public;
 
         public IFormatStringParser Parser { get; }
-        
+
         public FastStringFormatCompiler()
             : this (new DefaultFormatParser())
         {
-            
+
         }
-        
+
         public FastStringFormatCompiler(IFormatStringParser parser)
         {
             Parser = parser;
@@ -36,7 +36,7 @@ namespace FastStringFormat
             // Guard, since we currently target a version of .NET that doesn't understand nullable reference types
             if (formatString == null)
                 throw new ArgumentNullException(nameof(formatString));
-            
+
             if (formatProvider == null)
                 throw new ArgumentNullException(nameof(formatProvider));
 

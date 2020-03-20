@@ -6,7 +6,7 @@ namespace FastStringFormat.Parsing
 {
     internal class ParamSegment : ISegment
     {
-        private string param;
+        private readonly string param;
 
         public ParamSegment(string param)
         {
