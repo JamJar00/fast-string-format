@@ -6,6 +6,9 @@ using System.Reflection;
 using System.Globalization;
 using FastStringFormat.Parsing;
 using FastStringFormat.Parsing.Parsers;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("FastStringFormat.Test")]
 
 namespace FastStringFormat
 {
@@ -31,6 +34,7 @@ namespace FastStringFormat
             return Compile<T>(formatString, CultureInfo.CurrentCulture);
         }
 
+        // TODO remove nullableness
         public Func<T, string> Compile<T>(string? formatString, IFormatProvider? formatProvider)
         {
             // Guard, since we currently target a version of .NET that doesn't understand nullable reference types

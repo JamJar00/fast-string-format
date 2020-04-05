@@ -16,7 +16,7 @@ namespace FastStringFormat.Parsing
         public Expression ToExpression<T>(ParameterExpression parameter, BindingFlags bindingFlags, Expression formatProviderExpression)
         {
             MethodInfo getMethod = typeof(T).GetProperty(param, bindingFlags)?.GetGetMethod()
-                ?? throw new FormatStringSyntaxException($"Property '{param}' not found on type '{nameof(T)}'. Does it have a public get accessor?");;
+                ?? throw new FormatStringSyntaxException($"Property '{param}' not found on type. Does it have a public get accessor?");
 
             Expression getExpression = Expression.Call(parameter, getMethod);
 
@@ -26,7 +26,7 @@ namespace FastStringFormat.Parsing
             }
             else
             {
-                MethodInfo toStringMethod = typeof(T).GetMethod("ToString", new Type[0]);
+                MethodInfo toStringMethod = getMethod.ReturnType.GetMethod("ToString", new Type[0]);
                 return Expression.Call(getExpression, toStringMethod);
             }
         }

@@ -1,11 +1,10 @@
-using System.Net;
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FastStringFormat.Test
 {
     [TestClass]
-    public class IT
+    public class FastStringFormatIT
     {
         private class DataObject
         {
@@ -16,6 +15,7 @@ namespace FastStringFormat.Test
             public bool LikesCats { get; set; }
 
             public string? NullString { get; set; }
+            public IFormattable? NullObject { get; set; }
 
             public DataObject(string forename, string surname, DateTime dob, bool likesCats)
             {
@@ -24,6 +24,7 @@ namespace FastStringFormat.Test
                 Dob = dob;
                 LikesCats = likesCats;
                 NullString = null;
+                NullObject = null;
             }
         }
 
@@ -37,17 +38,19 @@ namespace FastStringFormat.Test
         [DataRow("{forename} {surname} was born {DOB}. It is {likesCats} that he liked cats.", "Steve Irwin was born 22/09/1962 00:00:00. It is True that he liked cats.")]
         [DataRow("This is null: {nullString}", "This is null: ")]
         [DataRow("{nullString}", "")]
+        [DataRow("{nullObject}", "")]
+        [DataRow("{nullObject:yyyy-MM-dd}", "")]
         public void TestFormatString(string formatString, string expected)
         {
             // GIVEN a valid format string
             // WHEN compiled
-            var formatter = new FastStringFormatCompiler().Compile<DataObject>(formatString);
+            Func<DataObject, string> formatter = new FastStringFormatCompiler().Compile<DataObject>(formatString);
 
             // THEN the formatter is not null
             Assert.IsNotNull(formatter);
 
             // GIVEN an data object to format
-            var data = new DataObject("Steve", "Irwin", new DateTime(1962, 9, 22), true);
+            DataObject data = new DataObject("Steve", "Irwin", new DateTime(1962, 9, 22), true);
 
             // WHEN the formatter is invoked
             string result = formatter(data);
@@ -62,9 +65,7 @@ namespace FastStringFormat.Test
             // GIVEN a null format string
             // WHEN compiled
             // THEN an exception is thrown
-            Assert.ThrowsException<ArgumentNullException>(() => {
-                new FastStringFormatCompiler().Compile<DataObject>(null);
-            }, "formatString");
+            Assert.ThrowsException<ArgumentNullException>(() => new FastStringFormatCompiler().Compile<DataObject>(null), "formatString");
         }
 
         [TestMethod]
@@ -81,9 +82,7 @@ namespace FastStringFormat.Test
             // GIVEN an invalid format string
             // WHEN compiled
             // THEN an exception is thrown
-            Assert.ThrowsException<FormatStringSyntaxException>(() => {
-                new FastStringFormatCompiler().Compile<DataObject>(formatString);
-            }, message);
+            Assert.ThrowsException<FormatStringSyntaxException>(() => new FastStringFormatCompiler().Compile<DataObject>(formatString), message);
         }
     }
 }
