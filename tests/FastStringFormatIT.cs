@@ -15,7 +15,7 @@ namespace FastStringFormat.Test
             public bool LikesCats { get; set; }
 
             public string? NullString { get; set; }
-            public IFormattable? NullObject { get; set; }
+            public Formattable? NullObject { get; set; }
 
             public DataObject(string forename, string surname, DateTime dob, bool likesCats)
             {
@@ -25,6 +25,14 @@ namespace FastStringFormat.Test
                 LikesCats = likesCats;
                 NullString = null;
                 NullObject = null;
+            }
+        }
+
+        private class Formattable : IFormattable
+        {
+            public string ToString(string? format, IFormatProvider? formatProvider)
+            {
+                throw new NotImplementedException();
             }
         }
 

@@ -9,6 +9,7 @@ using FastStringFormat.Parsing.Parsers;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("FastStringFormat.Test")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace FastStringFormat
 {
@@ -34,8 +35,13 @@ namespace FastStringFormat
             return Compile<T>(formatString, CultureInfo.CurrentCulture);
         }
 
-        // TODO remove nullableness
         public Func<T, string> Compile<T>(string? formatString, IFormatProvider? formatProvider)
+        {
+            return Compile<T>(formatString, formatProvider, NullCheckMode.UseEmptyString);
+        }
+
+        // TODO remove nullableness
+        public Func<T, string> Compile<T>(string? formatString, IFormatProvider? formatProvider, NullCheckMode nullCheckMode)
         {
             // Guard, since we currently target a version of .NET that doesn't understand nullable reference types
             if (formatString == null)
@@ -47,12 +53,14 @@ namespace FastStringFormat
             // Parse the string to a set of segments
             IEnumerable<ISegment> segments = ParseFormatString(formatString);
 
-            // Create necessary constant expressions
+            // Create necessary constant expressions and parameterhelper
             ParameterExpression parameter = Expression.Parameter(typeof(T));
             Expression formatProviderExpression = Expression.Constant(formatProvider);
 
+            ParameterProvider<T> parameterProvider = new ParameterProvider<T>(parameter, BINDING_FLAGS, nullCheckMode);
+
             // Compile segments to constituent expressions
-            IEnumerable<Expression> segmentExpressions = segments.Select(s => s.ToExpression<T>(parameter, BINDING_FLAGS, formatProviderExpression));
+            IEnumerable<Expression> segmentExpressions = segments.Select(s => s.ToExpression<T>(parameterProvider, formatProviderExpression));
 
             // Select the best method of forming the string
             // TODO May be faster to nest concat operations up until a certain point before resorting to allocating an array object in the process. Perhaps a user preference?
@@ -83,8 +91,7 @@ namespace FastStringFormat
 
         private Expression CompileToSingleton<T>(Expression expression)
         {
-            // Most people don't want a null input to return null, they want an empty string instead
-            return Expression.Coalesce(expression, Expression.Constant(""));
+            return expression;
         }
 
         private static Expression CompileToSingleConcat<T>(IEnumerable<Expression> segmentExpressions)

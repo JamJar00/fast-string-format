@@ -7,28 +7,29 @@ namespace FastStringFormat.Parsing
 {
     internal class FormattedParamSegment : ISegment
     {
-        private readonly string param;
+        public string Param { get; }
+
         private readonly string format;
 
         public FormattedParamSegment(string param, string format)
         {
-            this.param = param;
+            this.Param = param;
             this.format = format;
         }
 
-        public Expression ToExpression<T>(ParameterExpression parameter, BindingFlags bindingFlags, Expression formatProviderExpression)
+        public Expression ToExpression<T>(IParameterProvider<T> parameterProvider, Expression formatProviderExpression)
         {
-            MethodInfo getMethod = typeof(T).GetProperty(param, bindingFlags)?.GetGetMethod()
-                ?? throw new FormatStringSyntaxException($"Property '{param}' not found on type. Does it have a public get accessor?");
+            Expression parameter = parameterProvider.GetParameter(Param);
 
-            if (getMethod.ReturnType != typeof(IFormattable) && !getMethod.ReturnType.GetInterfaces().Contains(typeof(IFormattable)))
-                throw new FormatStringSyntaxException($"Property '{param}' does not return a type implementing IFormattable hence a format string cannot be applied to it.");
+            if (parameter.Type != typeof(IFormattable) && !parameter.Type.GetInterfaces().Contains(typeof(IFormattable)))
+                throw new FormatStringSyntaxException($"Property '{Param}' does not return a type implementing IFormattable hence a format string cannot be applied to it.");
 
-            Expression getExpression = Expression.Call(parameter, getMethod);
             Expression formatExpression = Expression.Constant(format);
-            MethodInfo toStringMethod = getMethod.ReturnType.GetMethod("ToString", new Type[] { typeof(string), typeof(IFormatProvider) });
+            MethodInfo toStringMethod = parameter.Type.GetMethod("ToString", new Type[] { typeof(string), typeof(IFormatProvider) });
 
-            return Expression.Call(getExpression, toStringMethod, formatExpression, formatProviderExpression);
+            Expression stringified = Expression.Call(parameter, toStringMethod, formatExpression, formatProviderExpression);
+
+            return parameterProvider.WrapWithNullCheck(parameter, stringified);
         }
     }
 }

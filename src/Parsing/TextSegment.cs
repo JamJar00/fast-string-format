@@ -5,6 +5,8 @@ namespace FastStringFormat.Parsing
 {
     internal class TextSegment : ISegment
     {
+        public string? Param => null;
+
         private readonly string text;
 
         public TextSegment(string text)
@@ -12,7 +14,7 @@ namespace FastStringFormat.Parsing
             this.text = text;
         }
 
-        public Expression ToExpression<T>(ParameterExpression parameter, BindingFlags bindingFlags, Expression formatProviderExpression)
+        public Expression ToExpression<T>(IParameterProvider<T> parameterProvider, Expression formatProviderExpression)
         {
             return Expression.Constant(text);
         }

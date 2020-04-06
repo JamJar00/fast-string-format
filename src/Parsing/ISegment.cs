@@ -5,6 +5,8 @@ namespace FastStringFormat.Parsing
 {
     internal interface ISegment
     {
-        Expression ToExpression<T>(ParameterExpression parameter, BindingFlags bindingFlags, Expression formatProviderExpression);
+        string? Param { get; }
+
+        Expression ToExpression<T>(IParameterProvider<T> parameterProvider, Expression formatProviderExpression);
     }
 }

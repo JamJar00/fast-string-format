@@ -14,69 +14,55 @@ namespace FastStringFormat.Parsing.Test
         public void TestToExpressionWithString()
         {
             // GIVEN expressions for parameters
-            ParameterExpression parameter = Expression.Parameter(typeof(TestClass));
+            Mock<IParameterProvider<object>> parameterProvider = new Mock<IParameterProvider<object>>();
             Expression formatProvider = Expression.Constant(null);
+
+            // AND the parameter provider can find the property
+            Expression stringExpression = Expression.Constant("I am a string!");
+            parameterProvider.Setup(p => p.GetParameter("StringProperty")).Returns(stringExpression);
+
+            // AND the parameter provider wraps the expression in a null check
+            Expression wrappedStringExpression = Expression.Constant("I am a wrapped string!");
+            parameterProvider.Setup(p => p.WrapWithNullCheck(stringExpression, stringExpression)).Returns(wrappedStringExpression);
 
             // WHEN the param segment is converted to an expression
             ParamSegment paramSegment = new ParamSegment("StringProperty");
-            Expression result = paramSegment.ToExpression<TestClass>(parameter, BindingFlags.Instance | BindingFlags.Public, formatProvider);
+            Expression result = paramSegment.ToExpression(parameterProvider.Object, formatProvider);
 
-            // THEN the expression is a method call
-            Assert.IsInstanceOfType(result, typeof(MethodCallExpression));
-
-            // AND the expression contains the correct parameter
-            Assert.AreSame(((MethodCallExpression)result).Object, parameter);
-
-            // AND the expression contains the getter being accessed
-            MethodInfo? methodInfo = typeof(TestClass).GetProperty("StringProperty", BindingFlags.Instance | BindingFlags.Public)?.GetGetMethod();
-            Assert.AreSame(methodInfo, ((MethodCallExpression)result).Method);
+            // THEN the expression is that returned by the parameter provider
+            Assert.AreSame(result, wrappedStringExpression);
         }
 
         [TestMethod]
         public void TestToExpressionWithObject()
         {
             // GIVEN expressions for parameters
-            ParameterExpression parameter = Expression.Parameter(typeof(TestClass));
+            Mock<IParameterProvider<object>> parameterProvider = new Mock<IParameterProvider<object>>();
             Expression formatProvider = Expression.Constant(null);
+
+            // AND the parameter provider can find the property
+            Expression objectExpression = Expression.Constant(new object());
+            parameterProvider.Setup(p => p.GetParameter("ObjectProperty")).Returns(objectExpression);
+
+            // AND the parameter provider wraps the expression in a null check
+            Expression wrappedObjectExpression = Expression.Constant(new object());
+            parameterProvider.Setup(p => p.WrapWithNullCheck(objectExpression, It.IsAny<Expression>())).Returns(wrappedObjectExpression);
 
             // WHEN the param segment is converted to an expression
             ParamSegment paramSegment = new ParamSegment("ObjectProperty");
-            Expression result = paramSegment.ToExpression<TestClass>(parameter, BindingFlags.Instance | BindingFlags.Public, formatProvider);
+            Expression result = paramSegment.ToExpression(parameterProvider.Object, formatProvider);
 
-            // THEN the expression is a method call
-            Assert.IsInstanceOfType(result, typeof(MethodCallExpression));
+            // THEN the expression wrapped was a method call to object.ToString
+            object toTest = parameterProvider.Invocations[1].Arguments[1];
+            Assert.IsInstanceOfType(toTest, typeof(MethodCallExpression));
+            MethodInfo? methodInfo2 = typeof(object).GetMethod("ToString", new Type[0]);
+            Assert.AreSame(methodInfo2, ((MethodCallExpression)toTest).Method);
 
-            // AND the expression contains the get expression for the property
-            Assert.IsInstanceOfType(((MethodCallExpression)result).Object, typeof(MethodCallExpression));
-            Assert.AreSame(parameter, ((MethodCallExpression)((MethodCallExpression)result).Object).Object);
-            MethodInfo? methodInfo = typeof(TestClass).GetProperty("ObjectProperty", BindingFlags.Instance | BindingFlags.Public)?.GetGetMethod();
-            Assert.AreSame(methodInfo, ((MethodCallExpression)((MethodCallExpression)result).Object).Method);
+            // AND the expression contains that provided by the parameter provider
+            Assert.AreSame(objectExpression, ((MethodCallExpression)toTest).Object);
 
-            // AND the expression contains the ToString method being accessed
-            MethodInfo? methodInfo2 = methodInfo?.ReturnType.GetMethod("ToString", new Type[0]);
-            Assert.AreSame(methodInfo2, ((MethodCallExpression)result).Method);
-        }
-
-        [TestMethod]
-        public void TestToExpressionWithMissingProperty()
-        {
-            // GIVEN expressions for parameters
-            ParameterExpression parameter = Expression.Parameter(typeof(TestClass));
-            Expression formatProvider = Expression.Constant(null);
-
-            // WHEN the param segment is converted to an expression with an invalid property name
-            // THEN an exception is thrown
-            ParamSegment paramSegment = new ParamSegment("NonExistent");
-            Assert.ThrowsException<FormatStringSyntaxException>(() =>
-                paramSegment.ToExpression<TestClass>(parameter, BindingFlags.Instance | BindingFlags.Public, formatProvider),
-                "Property 'NonExistent' not found on type. Does it have a public get accessor?"
-            );
-        }
-
-        private class TestClass
-        {
-            public string? StringProperty { get; }
-            public object? ObjectProperty { get; }
+            // AND the expression returned is the wrapped object expression
+            Assert.AreSame(wrappedObjectExpression, result);
         }
     }
 }

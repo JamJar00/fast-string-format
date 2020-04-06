@@ -6,29 +6,32 @@ namespace FastStringFormat.Parsing
 {
     internal class ParamSegment : ISegment
     {
-        private readonly string param;
+        public string Param { get; }
 
         public ParamSegment(string param)
         {
-            this.param = param;
+            this.Param = param;
         }
 
-        public Expression ToExpression<T>(ParameterExpression parameter, BindingFlags bindingFlags, Expression formatProviderExpression)
+        public Expression ToExpression<T>(IParameterProvider<T> parameterProvider, Expression _)
         {
-            MethodInfo getMethod = typeof(T).GetProperty(param, bindingFlags)?.GetGetMethod()
-                ?? throw new FormatStringSyntaxException($"Property '{param}' not found on type. Does it have a public get accessor?");
+            Expression parameter = parameterProvider.GetParameter(Param);
 
-            Expression getExpression = Expression.Call(parameter, getMethod);
-
-            if (getMethod.ReturnType == typeof(string))
+            Expression stringified;
+            if (parameter.Type == typeof(string))
             {
-                return getExpression;
+                stringified = parameter;
             }
             else
             {
-                MethodInfo toStringMethod = getMethod.ReturnType.GetMethod("ToString", new Type[0]);
-                return Expression.Call(getExpression, toStringMethod);
+                MethodInfo toStringMethod = parameter.Type.GetMethod("ToString", new Type[0]);
+                if (toStringMethod == null)
+                    throw new FormatStringSyntaxException($"Property '{Param}' does not return a type with a ToString method on it. Is it an interface?");
+
+                stringified = Expression.Call(parameter, toStringMethod);
             }
+
+            return parameterProvider.WrapWithNullCheck(parameter, stringified);
         }
     }
 }
