@@ -73,7 +73,20 @@ namespace FastStringFormat.Test
             // GIVEN a null format string
             // WHEN compiled
             // THEN an exception is thrown
+#nullable disable
             Assert.ThrowsException<ArgumentNullException>(() => new FastStringFormatCompiler().Compile<DataObject>(null), "formatString");
+#nullable enable
+        }
+
+        [TestMethod]
+        public void TestArgumentExceptionIsThrownForNullFormatProviders()
+        {
+            // GIVEN a null format provider
+            // WHEN compiled
+            // THEN an exception is thrown
+#nullable disable
+            Assert.ThrowsException<ArgumentNullException>(() => new FastStringFormatCompiler().Compile<DataObject>("something", null), "formatProvider");
+#nullable enable
         }
 
         [TestMethod]

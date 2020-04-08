@@ -30,20 +30,19 @@ namespace FastStringFormat
             Parser = parser;
         }
 
-        public Func<T, string> Compile<T>(string? formatString)
+        public Func<T, string> Compile<T>(string formatString)
         {
             return Compile<T>(formatString, CultureInfo.CurrentCulture);
         }
 
-        public Func<T, string> Compile<T>(string? formatString, IFormatProvider? formatProvider)
+        public Func<T, string> Compile<T>(string formatString, IFormatProvider formatProvider)
         {
             return Compile<T>(formatString, formatProvider, NullCheckMode.UseEmptyString);
         }
 
-        // TODO remove nullableness
-        public Func<T, string> Compile<T>(string? formatString, IFormatProvider? formatProvider, NullCheckMode nullCheckMode)
+        public Func<T, string> Compile<T>(string formatString, IFormatProvider formatProvider, NullCheckMode nullCheckMode)
         {
-            // Guard, since we currently target a version of .NET that doesn't understand nullable reference types
+            // Guard anyway, since we may be used by things that don't understand nullable reference types
             if (formatString == null)
                 throw new ArgumentNullException(nameof(formatString));
 

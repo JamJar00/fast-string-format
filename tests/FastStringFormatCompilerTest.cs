@@ -16,7 +16,6 @@ namespace FastStringFormat.Test
         public void TestFormatSingleton()
         {
             // GIVEN a parser that returns a single segment
-            // TODO we use InternalsVisibleTo can we improve this?
             mockFormatStringProvider.Setup(m => m.ParseFormatString("format-string", It.IsAny<IParsedStringBuilder>()))
                                     .Callback((string s, IParsedStringBuilder b) => b.AddTextSegment("result"));
 
