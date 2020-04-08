@@ -1,5 +1,5 @@
 # Fast String Format
-![Build and Test](https://github.com/DarkRiftNetworking/fast-string-format/workflows/Build%20and%20Test/badge.svg)
+![Build and Test](https://github.com/DarkRiftNetworking/fast-string-format/workflows/Build%20and%20Test/badge.svg) [![NuGet](https://buildstats.info/nuget/FastStringFormat)](https://www.nuget.org/packages/FastStringFormat/)
 
 This library is designed for a future version of [DarkRift Networking](https://github.com/DarkRiftNetworking/DarkRift) to provide very fast custom formatted log lines. It is currently very work in progress and is subject to breaking changes with no notice.
 
