@@ -30,7 +30,7 @@ Fast String Format is currently benchmarked against a number of different string
 ```
 
 ## Usage
-To use Fast String Format you will currently need to compile from source. Because this is a work in progress it is not available on Nuget yet.
+FastStringFormat is available as a [NuGet package!](https://www.nuget.org/packages/FastStringFormat/)
 
 A simple usage would look like:
 ```csharp
