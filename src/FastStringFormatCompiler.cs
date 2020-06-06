@@ -15,7 +15,7 @@ namespace FastStringFormat
 {
     public partial class FastStringFormatCompiler
     {
-        private const BindingFlags BINDING_FLAGS = BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public;
+        private const BindingFlags BINDING_FLAGS = BindingFlags.Instance | BindingFlags.Public;
 
         public IFormatStringParser Parser { get; }
 

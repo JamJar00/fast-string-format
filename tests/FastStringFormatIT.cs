@@ -38,16 +38,16 @@ namespace FastStringFormat.Test
 
         [TestMethod]
         [DataRow("Hi!", "Hi!")]
-        [DataRow("{forename}", "Steve")]
-        [DataRow("{forename}{surname}", "SteveIrwin")]
-        [DataRow("No{surname}space!", "NoIrwinspace!")]
-        [DataRow("{DOB}", "22/09/1962 00:00:00")]
-        [DataRow("{DOB:yyyy-MM-dd}", "1962-09-22")]
-        [DataRow("{forename} {surname} was born {DOB}. It is {likesCats} that he liked cats.", "Steve Irwin was born 22/09/1962 00:00:00. It is True that he liked cats.")]
-        [DataRow("This is null: {nullString}", "This is null: ")]
-        [DataRow("{nullString}", "")]
-        [DataRow("{nullObject}", "")]
-        [DataRow("{nullObject:yyyy-MM-dd}", "")]
+        [DataRow("{Forename}", "Steve")]
+        [DataRow("{Forename}{Surname}", "SteveIrwin")]
+        [DataRow("No{Surname}space!", "NoIrwinspace!")]
+        [DataRow("{Dob}", "22/09/1962 00:00:00")]
+        [DataRow("{Dob:yyyy-MM-dd}", "1962-09-22")]
+        [DataRow("{Forename} {Surname} was born {Dob}. It is {LikesCats} that he liked cats.", "Steve Irwin was born 22/09/1962 00:00:00. It is True that he liked cats.")]
+        [DataRow("This is null: {NullString}", "This is null: ")]
+        [DataRow("{NullString}", "")]
+        [DataRow("{NullObject}", "")]
+        [DataRow("{NullObject:yyyy-MM-dd}", "")]
         public void TestFormatString(string formatString, string expected)
         {
             // GIVEN a valid format string
@@ -90,20 +90,25 @@ namespace FastStringFormat.Test
         }
 
         [TestMethod]
-        [DataRow("Hello, {Name", "Missing '}' to match '{' at position 8.")]
-        [DataRow("Hello, {Name:something", "Missing '}' to match '{' at position 8.")]
-        [DataRow("{}", "Empty parameter at position {openBraceAt}.")]
-        [DataRow("{Name:}", "Empty format at position {openBraceAt}.")]
-        [DataRow("{:something}", "Empty parameter at position {openBraceAt}.")]
-        [DataRow("{NotFound}", "Property 'NotFound' not found on type 'DataObject'. Does it have a public get accessor?")]
-        [DataRow("{NotFound:something}", "Property 'NotFound' not found on type 'DataObject'. Does it have a public get accessor?")]
+        [DataRow("Hello, {Name", "Missing '}' to match '{' at position 7.")]
+        [DataRow("Hello, {Name:something", "Missing '}' to match '{' at position 7.")]
+        [DataRow("{}", "Empty parameter at position 0.")]
+        [DataRow("{Name:}", "Empty format at position 0.")]
+        [DataRow("{:something}", "Empty parameter at position 0.")]
+        [DataRow("{NotFound}", "Property 'NotFound' not found on type. Does it have a public get accessor?")]
+        [DataRow("{NotFound:something}", "Property 'NotFound' not found on type. Does it have a public get accessor?")]
         [DataRow("{LikesCats:something}", "Property 'LikesCats' does not return a type implementing IFormattable hence a format string cannot be applied to it.")]
         public void TestExceptionsAreThrownForInvalidFormatStrings(string formatString, string message)
         {
             // GIVEN an invalid format string
             // WHEN compiled
             // THEN an exception is thrown
-            Assert.ThrowsException<FormatStringSyntaxException>(() => new FastStringFormatCompiler().Compile<DataObject>(formatString), message);
+            try {
+                new FastStringFormatCompiler().Compile<DataObject>(formatString);
+                Assert.Fail();
+            } catch (FormatStringSyntaxException e) {
+                Assert.AreEqual(message, e.Message);
+            }
         }
     }
 }
