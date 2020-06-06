@@ -34,7 +34,7 @@ FastStringFormat is available as a [NuGet package!](https://www.nuget.org/packag
 
 A simple usage would look like:
 ```csharp
-var formatter = new FastStringFormatCompiler().Compile<DataObject>("{forename} {surname} was born {DOB::yyyy-MM-dd}. It is {likesCats} that he liked cats.");
+var formatter = new FastStringFormatCompiler().Compile<DataObject>("{Forename} {Surname} was born {DOB::yyyy-MM-dd}. It is {LikesCats} that he liked cats.");
 
 var data = new DataObject(Forename = "Steve", Surname = "Irwin", DOB = new DateTime(1962, 9, 22), LikesCats = true);
 
