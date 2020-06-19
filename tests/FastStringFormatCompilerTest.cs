@@ -13,6 +13,7 @@ namespace FastStringFormat.Test
     {
         private readonly Mock<IFormatStringParser> mockFormatStringProvider = new Mock<IFormatStringParser>();
 
+        [TestMethod]
         public void TestFormatSingleton()
         {
             // GIVEN a parser that returns a single segment
@@ -30,6 +31,7 @@ namespace FastStringFormat.Test
             Assert.AreEqual("result", result);
         }
 
+        [TestMethod]
         public void TestFormatSmallSet()
         {
             // GIVEN a parser that returns a single segment
@@ -53,6 +55,7 @@ namespace FastStringFormat.Test
             Assert.AreEqual("result234", result);
         }
 
+        [TestMethod]
         public void TestFormatLargeSet()
         {
             // GIVEN a parser that returns a single segment
