@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -30,15 +30,26 @@ namespace FastStringFormat.Parsing
 
         /// <summary>
         /// Returns a parameter with any null checks necesary for the current NullCheckMode.
+        /// If the parameter name is a chain of properties, this method returns an expression which represents a chain of get property calls.
         /// </summary>
-        /// <param name="param">The parameter to search for.</param>
+        /// <param name="param">The parameter to search for. Can be a chain of property names.</param>
         /// <returns>The expression for the parameter.</returns>
         public Expression GetParameter(string param)
         {
-            MethodInfo getMethod = typeof(T).GetProperty(param, bindingFlags)?.GetGetMethod()
-                ?? throw new FormatStringSyntaxException($"Property '{param}' not found on type. Does it have a public get accessor?");
+            string[] props = param.Split('.');
+            Type type = typeof(T);
+            Expression callInstance = parameter;
 
-            return Expression.Call(parameter, getMethod);
+            foreach (var prop in props)
+            {
+                MethodInfo getMethod = type.GetProperty(prop, bindingFlags)?.GetGetMethod()
+                    ?? throw new FormatStringSyntaxException($"Property '{prop}' not found on type '{type}'. Does it have a public get accessor?");
+
+                callInstance = Expression.Call(callInstance, getMethod);
+                type = callInstance.Type;
+            }
+
+            return callInstance;
         }
 
         /// <summary>
