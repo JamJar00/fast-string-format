@@ -96,10 +96,8 @@ namespace FastStringFormat.Parsing.Test
             // WHEN the param segment is converted to an expression with a property that is not IFormattable
             // THEN an exception is thrown
             FormattedParamSegment paramSegment = new FormattedParamSegment("ObjectProperty", "yyyy-MM-dd");
-            Assert.ThrowsException<FormatStringSyntaxException>(() =>
-                paramSegment.ToExpression(parameterProvider.Object, formatProvider),
-                "Property 'ObjectProperty' does not return a type implementing IFormattable hence a format string cannot be applied to it."
-            );
+            FormatStringSyntaxException e = Assert.ThrowsException<FormatStringSyntaxException>(() => paramSegment.ToExpression(parameterProvider.Object, formatProvider));
+            Assert.AreEqual("Property 'ObjectProperty' does not return a type implementing IFormattable hence a format string cannot be applied to it.", e.Message);
         }
     }
 }

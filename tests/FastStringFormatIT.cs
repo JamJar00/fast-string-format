@@ -6,6 +6,18 @@ namespace FastStringFormat.Test
     [TestClass]
     public class FastStringFormatIT
     {
+        private class Coordinates
+        {
+            public double Latitude { get; set; }
+            public double Longitude { get; set; }
+
+            public Coordinates(double latitude, double longitude)
+            {
+                Latitude = latitude;
+                Longitude = longitude;
+            }
+        }
+
         private class DataObject
         {
             public string Forename { get; set; }
@@ -16,8 +28,9 @@ namespace FastStringFormat.Test
 
             public string? NullString { get; set; }
             public Formattable? NullObject { get; set; }
+            public Coordinates Coordinates { get; set;}
 
-            public DataObject(string forename, string surname, DateTime dob, bool likesCats)
+            public DataObject(string forename, string surname, DateTime dob, bool likesCats, Coordinates coordinates)
             {
                 Forename = forename;
                 Surname = surname;
@@ -25,6 +38,7 @@ namespace FastStringFormat.Test
                 LikesCats = likesCats;
                 NullString = null;
                 NullObject = null;
+                Coordinates = coordinates;
             }
         }
 
@@ -48,6 +62,8 @@ namespace FastStringFormat.Test
         [DataRow("{NullString}", "")]
         [DataRow("{NullObject}", "")]
         [DataRow("{NullObject:yyyy-MM-dd}", "")]
+        [DataRow("Coordinates: {Coordinates.Latitude}, {Coordinates.Longitude}", "Coordinates: -26.835488321500016, 152.96309154093498")]
+        [DataRow("{Dob.DayOfWeek}", "Saturday")]
         public void TestFormatString(string formatString, string expected)
         {
             // GIVEN a valid format string
@@ -58,7 +74,13 @@ namespace FastStringFormat.Test
             Assert.IsNotNull(formatter);
 
             // GIVEN an data object to format
-            DataObject data = new DataObject("Steve", "Irwin", new DateTime(1962, 9, 22), true);
+            DataObject data = new DataObject(
+                "Steve",
+                "Irwin",
+                new DateTime(1962, 9, 22),
+                true,
+                new Coordinates(-26.835488321500016, 152.96309154093498)
+            );
 
             // WHEN the formatter is invoked
             string result = formatter(data);
@@ -95,8 +117,8 @@ namespace FastStringFormat.Test
         [DataRow("{}", "Empty parameter at position 0.")]
         [DataRow("{Name:}", "Empty format at position 0.")]
         [DataRow("{:something}", "Empty parameter at position 0.")]
-        [DataRow("{NotFound}", "Property 'NotFound' not found on type. Does it have a public get accessor?")]
-        [DataRow("{NotFound:something}", "Property 'NotFound' not found on type. Does it have a public get accessor?")]
+        [DataRow("{NotFound}", "Property 'NotFound' not found on type 'FastStringFormat.Test.FastStringFormatIT+DataObject'. Does it have a public get accessor?")]
+        [DataRow("{NotFound:something}", "Property 'NotFound' not found on type 'FastStringFormat.Test.FastStringFormatIT+DataObject'. Does it have a public get accessor?")]
         [DataRow("{LikesCats:something}", "Property 'LikesCats' does not return a type implementing IFormattable hence a format string cannot be applied to it.")]
         public void TestExceptionsAreThrownForInvalidFormatStrings(string formatString, string message)
         {
