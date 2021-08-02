@@ -58,8 +58,9 @@ namespace FastStringFormat
 
             ParameterProvider<T> parameterProvider = new ParameterProvider<T>(parameter, BINDING_FLAGS, nullCheckMode);
 
-            // Compile segments to constituent expressions
-            IEnumerable<Expression> segmentExpressions = segments.Select(s => s.ToExpression<T>(parameterProvider, formatProviderExpression));
+            // Compile segments to constituent expressions.
+            // Materialize the IEnumerable to a list in order to avoid recalculating the expressions while deciding which concatenation layout to use.
+            IEnumerable<Expression> segmentExpressions = segments.Select(s => s.ToExpression<T>(parameterProvider, formatProviderExpression)).ToList();
 
             // Select the best method of forming the string
             // TODO May be faster to nest concat operations up until a certain point before resorting to allocating an array object in the process. Perhaps a user preference?

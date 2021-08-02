@@ -29,6 +29,29 @@ namespace FastStringFormat.Parsing
         }
 
         [TestMethod]
+        public void TestGetParameterWithNestedProperty()
+        {
+            // GIVEN an expression for the parameter
+            ParameterExpression parameter = Expression.Parameter(typeof(TestClass));
+
+            // WHEN a nested param is requested and the null check mode is set to None
+            ParameterProvider<TestClass> parameterProvider = new ParameterProvider<TestClass>(parameter, BindingFlags.Instance | BindingFlags.Public, NullCheckMode.None);
+            Expression result = parameterProvider.GetParameter("NestedTestClassProperty.StringProperty");
+
+            // THEN the returned expression is a method call
+            Assert.IsInstanceOfType(result, typeof(MethodCallExpression));
+
+            // AND the expression contains the getter being accessed
+            MethodInfo? methodInfo = typeof(TestClass)
+                .GetProperty("NestedTestClassProperty", BindingFlags.Instance | BindingFlags.Public)?
+                .PropertyType
+                .GetProperty("StringProperty", BindingFlags.Instance | BindingFlags.Public)?
+                .GetGetMethod();
+
+            Assert.AreSame(methodInfo, ((MethodCallExpression)result).Method);
+        }
+
+        [TestMethod]
         public void TestGetParameterWithMissingProperty()
         {
             // GIVEN an expression for the parameter
@@ -37,11 +60,23 @@ namespace FastStringFormat.Parsing
             // WHEN a param is requested with a property name missing from the object
             // THEN an exception is thrown
             ParameterProvider<TestClass> parameterProvider = new ParameterProvider<TestClass>(parameter, BindingFlags.Instance | BindingFlags.Public, NullCheckMode.None);
-            Assert.ThrowsException<FormatStringSyntaxException>(() =>
-                parameterProvider.GetParameter("NonExistent"),
-                "Property 'NonExistent' not found on type. Does it have a public get accessor?"
-            );
+            FormatStringSyntaxException e = Assert.ThrowsException<FormatStringSyntaxException>(() => parameterProvider.GetParameter("NonExistent"));
+            Assert.AreEqual("Property 'NonExistent' not found on type 'FastStringFormat.Parsing.ParameterProviderTests+TestClass'. Does it have a public get accessor?", e.Message);
         }
+
+        [TestMethod]
+        public void TestGetParameterWithMissingNestedProperty()
+        {
+            // GIVEN an expression for the parameter
+            ParameterExpression parameter = Expression.Parameter(typeof(TestClass));
+
+            // WHEN a param is requested with a nested property name missing from the object
+            // THEN an exception is thrown
+            ParameterProvider<TestClass> parameterProvider = new ParameterProvider<TestClass>(parameter, BindingFlags.Instance | BindingFlags.Public, NullCheckMode.None);
+            FormatStringSyntaxException e = Assert.ThrowsException<FormatStringSyntaxException>(() => parameterProvider.GetParameter("NestedTestClassProperty.NonExistent"));
+            Assert.AreEqual("Property 'NonExistent' not found on type 'FastStringFormat.Parsing.ParameterProviderTests+NestedTestClass'. Does it have a public get accessor?", e.Message);
+        }
+
 
         [TestMethod]
         public void TestWrapWithNullCheckWithNoneNullable()
@@ -153,11 +188,17 @@ namespace FastStringFormat.Parsing
             Assert.AreSame(processedExpression, falseBranch);
         }
 
+        private class NestedTestClass
+        {
+            public string? StringProperty { get; }
+        }
+
         private class TestClass
         {
             public string? StringProperty { get; }
             public bool BooleanProperty { get; }
             public bool? NullableProperty { get; }
+            public NestedTestClass? NestedTestClassProperty { get; }
         }
     }
 }
